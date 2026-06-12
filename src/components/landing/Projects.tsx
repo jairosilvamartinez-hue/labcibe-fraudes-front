@@ -72,10 +72,6 @@ const projects: Project[] = [
 const Projects = () => {
   const navigate = useNavigate();
   const reportRoute = useMemo(() => REPORTS_URL || "/reportar-estafa", []);
-  const isInternalReportUrl = useMemo(
-    () => reportRoute.startsWith("/"),
-    [reportRoute]
-  );
 
   return (
     <section id="projects" className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
