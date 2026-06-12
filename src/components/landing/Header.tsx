@@ -44,7 +44,21 @@ const Header = () => {
 
   const goToReportWizard = () => {
     closeMenu();
-    window.location.href = REPORTS_URL;
+    console.log('🔵 goToReportWizard invoked, REPORTS_URL =', REPORTS_URL);
+    try {
+      if (REPORTS_URL && REPORTS_URL.startsWith('/')) {
+        // internal route — use router navigate to avoid full reload
+        navigate(REPORTS_URL);
+      } else if (REPORTS_URL) {
+        // external URL — perform full redirect
+        window.location.href = REPORTS_URL;
+      } else {
+        // fallback to internal form route
+        navigate('/reportar-estafa');
+      }
+    } catch (err) {
+      console.error('🔴 Error en goToReportWizard:', err);
+    }
   };
 
   return (
