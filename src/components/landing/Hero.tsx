@@ -1,9 +1,17 @@
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { FlaskConical, ArrowRight, Shield } from "lucide-react";
 import heroImage from "@/assets/hero-cyber.jpg";
 import { REPORTS_URL } from "@/lib/config";
 
 const Hero = () => {
+  const navigate = useNavigate();
+  const isInternalReportUrl = useMemo(
+    () => REPORTS_URL?.startsWith("/"),
+    []
+  );
+
   const scrollToAbout = () => {
     const element = document.getElementById("about");
     if (element) {
@@ -12,6 +20,11 @@ const Hero = () => {
   };
 
   const goToReportWizard = () => {
+    console.log("🟢 Hero goToReportWizard invoked", { REPORTS_URL, isInternalReportUrl });
+    if (isInternalReportUrl) {
+      navigate(REPORTS_URL);
+      return;
+    }
     window.location.href = REPORTS_URL;
   };
 

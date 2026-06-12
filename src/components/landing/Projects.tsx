@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import {
   ShieldAlert,
@@ -68,6 +70,13 @@ const projects: Project[] = [
 ];
 
 const Projects = () => {
+  const navigate = useNavigate();
+  const reportRoute = useMemo(() => REPORTS_URL || "/reportar-estafa", []);
+  const isInternalReportUrl = useMemo(
+    () => reportRoute.startsWith("/"),
+    [reportRoute]
+  );
+
   return (
     <section id="projects" className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
       <div className="container mx-auto max-w-6xl">
@@ -86,6 +95,14 @@ const Projects = () => {
           {projects.map((project) => {
             const Icon = project.icon;
             const isExternal = project.cta.external;
+            const href = project.cta.href === REPORTS_URL ? reportRoute : project.cta.href;
+            const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+              if (!isExternal && href.startsWith("/")) {
+                event.preventDefault();
+                navigate(href);
+              }
+            };
+
             return (
               <Card
                 key={project.title}
@@ -110,7 +127,8 @@ const Projects = () => {
                       {project.description}
                     </p>
                     <a
-                      href={project.cta.href}
+                      href={href}
+                      onClick={handleClick}
                       target={isExternal ? "_blank" : undefined}
                       rel={isExternal ? "noopener noreferrer" : undefined}
                       className="inline-flex items-center gap-1.5 text-primary font-semibold hover:text-primary/80 transition-colors"
