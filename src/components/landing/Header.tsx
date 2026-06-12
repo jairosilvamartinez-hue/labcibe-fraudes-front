@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import labcibeLogo from "@/assets/LabCIBE-UNA.jpg";
-import { REPORTS_URL } from "@/lib/config";
+import { navigateToReportWizard } from "@/lib/config";
 
 const NAV_ITEMS: { id: string; label: string }[] = [
   { id: "about", label: "Acerca de" },
@@ -44,21 +44,7 @@ const Header = () => {
 
   const goToReportWizard = () => {
     closeMenu();
-    console.log('🔵 goToReportWizard invoked, REPORTS_URL =', REPORTS_URL);
-    try {
-      if (REPORTS_URL && REPORTS_URL.startsWith('/')) {
-        // internal route — use router navigate to avoid full reload
-        navigate(REPORTS_URL);
-      } else if (REPORTS_URL) {
-        // external URL — perform full redirect
-        window.location.href = REPORTS_URL;
-      } else {
-        // fallback to internal form route
-        navigate('/reportar-estafa');
-      }
-    } catch (err) {
-      console.error('🔴 Error en goToReportWizard:', err);
-    }
+    navigateToReportWizard(navigate);
   };
 
   return (
