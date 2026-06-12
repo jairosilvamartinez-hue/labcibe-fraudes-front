@@ -1,74 +1,167 @@
-import { Link } from "react-router-dom";
-import { HardHat, ArrowLeft, Mail } from "lucide-react";
-
-import Header from "@/components/landing/Header";
-import Footer from "@/components/landing/Footer";
-import heroImage from "@/assets/hero-cyber.jpg";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createFraud } from '../services/fraudService';
+import Header from '@/components/landing/Header';
+import Footer from '@/components/landing/Footer';
+import { Shield, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 const UnderConstruction = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    impostorDetails: '',
+    contactInfo: '',
+    comments: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+
+    // Validaciones básicas
+    if (!formData.impostorDetails.trim()) {
+      setError('Los detalles del impostor son obligatorios');
+      setLoading(false);
+      return;
+    }
+    if (!formData.contactInfo.trim()) {
+      setError('El número, correo o usuario es obligatorio');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await createFraud(formData);
+      setSuccess(true);
+      setFormData({ impostorDetails: '', contactInfo: '', comments: '' });
+      
+      // Redirigir a la lista de reportes después de 2 segundos
+      setTimeout(() => {
+        navigate('/reportes');
+      }, 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al guardar el reporte');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-
-      <main
-        id="main-content"
-        className="relative flex-1 flex items-center justify-center overflow-hidden mt-20"
-      >
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-hero opacity-95" />
-
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-15"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
-
-        {/* Content */}
-        <section className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-foreground/10 backdrop-blur-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <HardHat className="w-10 h-10 text-primary-foreground" />
+      <main id="main-content" className="flex-1 pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="container mx-auto max-w-3xl">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+              <Shield className="w-8 h-8 text-red-600" />
             </div>
-
-            <p className="text-sm sm:text-base uppercase tracking-[0.2em] text-primary-foreground/70 mb-4 animate-in fade-in duration-700">
-              LabCIBE-UNA
-            </p>
-
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-              Proyecto en construcción
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+              Reportar fraude
             </h1>
-
-            <p className="text-lg sm:text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-              La plataforma pública para reportar intentos de fraude está en
-              desarrollo. Estamos trabajando para ponerla a disposición de la
-              ciudadanía muy pronto.
+            <p className="text-lg text-gray-600">
+              Ayude a la comunidad informando sobre intentos de fraude o suplantación de identidad.
             </p>
-
-            <p className="text-base text-primary-foreground/75 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in duration-700 delay-300">
-              Mientras tanto, si necesita reportar un incidente o desea más
-              información, escríbanos al correo del laboratorio.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-full font-semibold shadow-medium hover:shadow-lg transition-all duration-300 hover:scale-105"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Volver al inicio
-              </Link>
-              <a
-                href="mailto:labcibe@una.ac.cr"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/60 rounded-full font-semibold transition-all duration-300"
-              >
-                <Mail className="w-5 h-5" />
-                labcibe@una.ac.cr
-              </a>
-            </div>
           </div>
-        </section>
-      </main>
 
+          {/* Success message */}
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <p className="text-green-700">¡Reporte guardado exitosamente! Redirigiendo...</p>
+            </div>
+          )}
+
+          {/* Error message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              <p className="text-red-700">{error}</p>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md p-6 md:p-8">
+            {/* Campo 1: Detalles del impostor */}
+            <div className="mb-6">
+              <label htmlFor="impostorDetails" className="block text-sm font-semibold text-gray-700 mb-2">
+                Nombre de la persona, empresa o entidad que decía ser el impostor *
+              </label>
+              <input
+                type="text"
+                id="impostorDetails"
+                name="impostorDetails"
+                value={formData.impostorDetails}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="Ej: Juan Pérez, Banco Nacional, etc."
+                disabled={loading || success}
+              />
+            </div>
+
+            {/* Campo 2: Información de contacto */}
+            <div className="mb-6">
+              <label htmlFor="contactInfo" className="block text-sm font-semibold text-gray-700 mb-2">
+                Número, correo o usuario desde el que contactó *
+              </label>
+              <input
+                type="text"
+                id="contactInfo"
+                name="contactInfo"
+                value={formData.contactInfo}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="Ej: 8888-8888, estafa@ejemplo.com, @usuario_falso"
+                disabled={loading || success}
+              />
+            </div>
+
+            {/* Campo 3: Comentarios */}
+            <div className="mb-6">
+              <label htmlFor="comments" className="block text-sm font-semibold text-gray-700 mb-2">
+                Comentarios del caso
+              </label>
+              <textarea
+                id="comments"
+                name="comments"
+                value={formData.comments}
+                onChange={handleChange}
+                rows={5}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="Describa lo que ocurrió con el mayor detalle posible. Mencione URLs, números, montos o fechas si las recuerda."
+                disabled={loading || success}
+              />
+            </div>
+
+            {/* Botón de envío */}
+            <button
+              type="submit"
+              disabled={loading || success}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                'Reportar fraude'
+              )}
+            </button>
+          </form>
+        </div>
+      </main>
       <Footer />
     </div>
   );
