@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5219';
+const API_URL = 'https://labcibe-fraudes-back-production.up.railway.app';
 
 export interface Fraud {
   id?: number;
