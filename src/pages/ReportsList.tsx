@@ -5,20 +5,31 @@ import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
 import { AlertCircle, Loader2, FileText, Calendar } from 'lucide-react';
 
+console.log('🟠 ===== ReportsList.tsx cargado =====');
+
 const ReportsList = () => {
   const [reports, setReports] = useState<Fraud[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  console.log('🟠 Componente ReportsList montado/rendering');
+
   useEffect(() => {
+    console.log('🟠 useEffect de ReportsList ejecutado');
     const fetchReports = async () => {
+      console.log('🟠 Iniciando fetchReports...');
       try {
+        console.log('🟠 Llamando a getAllFrauds...');
         const data = await getAllFrauds();
+        console.log('🟠 getAllFrauds exitoso, data recibida:', data);
         setReports(data);
+        console.log('🟠 Estado reports actualizado, cantidad:', data.length);
       } catch (err) {
+        console.error('🔴 Error en fetchReports:', err);
         setError(err instanceof Error ? err.message : 'Error al cargar los reportes');
       } finally {
         setLoading(false);
+        console.log('🟠 loading set to false');
       }
     };
 
@@ -36,6 +47,8 @@ const ReportsList = () => {
       minute: '2-digit',
     });
   };
+
+  console.log('🟠 Renderizando ReportsList, loading=', loading, 'error=', error, 'reports.length=', reports.length);
 
   return (
     <div className="min-h-screen flex flex-col">

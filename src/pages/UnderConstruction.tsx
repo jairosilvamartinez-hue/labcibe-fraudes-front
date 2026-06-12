@@ -5,8 +5,12 @@ import Header from '@/components/landing/Header';
 import Footer from '@/components/landing/Footer';
 import { Shield, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
+console.log('🟣 ===== UnderConstruction.tsx cargado =====');
+
 const UnderConstruction = () => {
   const navigate = useNavigate();
+  console.log('🟣 Componente UnderConstruction montado/rendering');
+  
   const [formData, setFormData] = useState({
     impostorDetails: '',
     contactInfo: '',
@@ -17,6 +21,7 @@ const UnderConstruction = () => {
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    console.log('🟣 handleChange:', e.target.name, '=', e.target.value);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -25,32 +30,40 @@ const UnderConstruction = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🟣 ===== handleSubmit ejecutado =====');
+    console.log('🟣 FormData actual:', formData);
+    
     setLoading(true);
     setError('');
     setSuccess(false);
 
-    // Validaciones básicas
     if (!formData.impostorDetails.trim()) {
+      console.warn('🟡 Validación falló: impostorDetails vacío');
       setError('Los detalles del impostor son obligatorios');
       setLoading(false);
       return;
     }
     if (!formData.contactInfo.trim()) {
+      console.warn('🟡 Validación falló: contactInfo vacío');
       setError('El número, correo o usuario es obligatorio');
       setLoading(false);
       return;
     }
 
     try {
-      await createFraud(formData);
+      console.log('🟣 Llamando a createFraud...');
+      const result = await createFraud(formData);
+      console.log('🟣 createFraud exitoso, resultado:', result);
       setSuccess(true);
       setFormData({ impostorDetails: '', contactInfo: '', comments: '' });
       
-      // Redirigir a la lista de reportes después de 2 segundos
+      console.log('🟣 Esperando 2 segundos antes de redirigir...');
       setTimeout(() => {
+        console.log('🟣 Redirigiendo a /reportes');
         navigate('/reportes');
       }, 2000);
     } catch (err) {
+      console.error('🔴 Error capturado en handleSubmit:', err);
       setError(err instanceof Error ? err.message : 'Error al guardar el reporte');
     } finally {
       setLoading(false);
@@ -62,7 +75,6 @@ const UnderConstruction = () => {
       <Header />
       <main id="main-content" className="flex-1 pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="container mx-auto max-w-3xl">
-          {/* Header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
               <Shield className="w-8 h-8 text-red-600" />
@@ -75,7 +87,6 @@ const UnderConstruction = () => {
             </p>
           </div>
 
-          {/* Success message */}
           {success && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-green-600" />
@@ -83,7 +94,6 @@ const UnderConstruction = () => {
             </div>
           )}
 
-          {/* Error message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-600" />
@@ -91,9 +101,7 @@ const UnderConstruction = () => {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md p-6 md:p-8">
-            {/* Campo 1: Detalles del impostor */}
             <div className="mb-6">
               <label htmlFor="impostorDetails" className="block text-sm font-semibold text-gray-700 mb-2">
                 Nombre de la persona, empresa o entidad que decía ser el impostor *
@@ -110,7 +118,6 @@ const UnderConstruction = () => {
               />
             </div>
 
-            {/* Campo 2: Información de contacto */}
             <div className="mb-6">
               <label htmlFor="contactInfo" className="block text-sm font-semibold text-gray-700 mb-2">
                 Número, correo o usuario desde el que contactó *
@@ -127,7 +134,6 @@ const UnderConstruction = () => {
               />
             </div>
 
-            {/* Campo 3: Comentarios */}
             <div className="mb-6">
               <label htmlFor="comments" className="block text-sm font-semibold text-gray-700 mb-2">
                 Comentarios del caso
@@ -144,7 +150,6 @@ const UnderConstruction = () => {
               />
             </div>
 
-            {/* Botón de envío */}
             <button
               type="submit"
               disabled={loading || success}
