@@ -10,6 +10,15 @@ export interface Fraud {
   createdAt?: string;
 }
 
+function normalizeFraud(obj: any): Fraud {
+  return {
+    id: obj.id ?? obj.Id,
+    impostorDetails: obj.impostorDetails ?? obj.ImpostorDetails ?? '',
+    contactInfo: obj.contactInfo ?? obj.ContactInfo ?? '',
+    comments: obj.comments ?? obj.Comments ?? '',
+    createdAt: obj.createdAt ?? obj.CreatedAt,
+  };
+}
 export async function createFraud(fraud: Fraud): Promise<Fraud> {
   console.log('🟢 createFraud llamado con:', fraud);
   console.log('🟢 URL completa:', `${API_URL}/api/Fraud`);
@@ -32,7 +41,7 @@ export async function createFraud(fraud: Fraud): Promise<Fraud> {
 
   const data = await response.json();
   console.log('🟢 createFraud exitoso, datos:', data);
-  return data;
+  return normalizeFraud(data as any);
 }
 
 export async function getAllFrauds(): Promise<Fraud[]> {
@@ -49,6 +58,12 @@ export async function getAllFrauds(): Promise<Fraud[]> {
   }
 
   const data = await response.json();
-  console.log('🟡 getAllFrauds exitoso, reportes:', data);
-  return data;
+  console.log('🟡 getAllFrauds exitoso, reportes (raw):', data);
+  if (Array.isArray(data)) {
+    const normalized = data.map((d) => normalizeFraud(d));
+    console.log('🟡 reportes normalizados:', normalized);
+    return normalized;
+  }
+  // In case API returns a single object
+  return [normalizeFraud(data)];
 }
